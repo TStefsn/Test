@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analysis-Trainer · Mathematik Leistungskurs</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- math.js (lokal): Parsen, symbolisches Ableiten, Vereinfachen, Auswerten.
+       Lokal eingebunden, damit die App ohne Internet/CDN funktioniert. -->
+  <script src="vendor/math.min.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="logo">∫</span>
+      <div>
+        <h1>Analysis-Trainer</h1>
+        <p class="subtitle">Übungsaufgaben · Mathematik Leistungskurs</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span id="status-pill" class="status-pill loading">lädt …</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ============ Steuerungs-Spalte ============ -->
+    <aside class="panel controls" aria-label="Aufgabenauswahl">
+      <section class="control-group">
+        <h2>1 · Funktionstyp</h2>
+        <p class="hint">Mehrfachauswahl möglich → erzeugt Verknüpfungen.</p>
+        <div id="function-types" class="chip-grid">
+          <!-- per JS gefüllt -->
+        </div>
+      </section>
+
+      <section class="control-group">
+        <h2>2 · Aufgabentyp</h2>
+        <div id="task-types" class="radio-list">
+          <label class="radio"><input type="radio" name="task" value="kurvendiskussion" checked /> <span>Kurvendiskussion</span></label>
+          <label class="radio"><input type="radio" name="task" value="kurvenschar" /> <span>Kurvenschar</span></label>
+          <label class="radio"><input type="radio" name="task" value="extremalproblem" /> <span>Extremalproblem</span></label>
+        </div>
+      </section>
+
+      <section class="control-group" id="focus-group">
+        <h2>3 · Themenschwerpunkte</h2>
+        <p class="hint">Welche Teilaufgaben gestellt werden.</p>
+        <div class="check-list">
+          <label class="check"><input type="checkbox" name="focus" value="kurvenuntersuchung" checked /> <span>Kurvenuntersuchung (Nullst., Extrema, Wendep.)</span></label>
+          <label class="check"><input type="checkbox" name="focus" value="wendetangente" checked /> <span>Wendetangente &amp; Normale</span></label>
+          <label class="check"><input type="checkbox" name="focus" value="flaeche" checked /> <span>Flächenberechnung</span></label>
+          <label class="check"><input type="checkbox" name="focus" value="ortskurve" /> <span>Ortskurve <em>(nur Kurvenschar)</em></span></label>
+          <label class="check"><input type="checkbox" name="focus" value="graph" checked /> <span>Graph zeichnen</span></label>
+        </div>
+      </section>
+
+      <section class="control-group">
+        <h2>4 · Schwierigkeit</h2>
+        <div class="radio-list compact">
+          <label class="radio"><input type="radio" name="level" value="leicht" /> <span>leicht</span></label>
+          <label class="radio"><input type="radio" name="level" value="mittel" checked /> <span>mittel</span></label>
+          <label class="radio"><input type="radio" name="level" value="schwer" /> <span>schwer</span></label>
+        </div>
+      </section>
+
+      <div class="control-actions">
+        <button id="generate-btn" class="btn primary">Neue Aufgabe erzeugen</button>
+        <button id="own-btn" class="btn ghost">Eigene Funktion eingeben</button>
+      </div>
+    </aside>
+
+    <!-- ============ Aufgaben-Spalte ============ -->
+    <section class="panel workspace" aria-label="Aufgabe">
+      <div id="own-input" class="own-input hidden">
+        <label for="own-fx">Eigene Funktion <code>f(x) =</code></label>
+        <div class="own-row">
+          <input id="own-fx" type="text" placeholder="z. B. (x^2-4)/(x-3)  oder  (x-1)*exp(-x)" />
+          <button id="own-go" class="btn primary small">Analysieren</button>
+        </div>
+        <p class="hint">Syntax: <code>^</code> Potenz, <code>exp(x)</code>, <code>ln(x)</code> bzw. <code>log(x)</code>, <code>sqrt(x)</code>, <code>*</code> für Mal. Parameter <code>t</code> für Scharen erlaubt.</p>
+      </div>
+
+      <article id="task-card" class="task-card empty">
+        <p class="placeholder">Wähle links Optionen und klicke auf <strong>„Neue Aufgabe erzeugen“</strong>.</p>
+      </article>
+
+      <div id="plot-wrap" class="plot-wrap hidden">
+        <div class="plot-toolbar">
+          <span class="plot-title">Graph</span>
+          <div class="plot-controls" id="plot-controls"></div>
+        </div>
+        <canvas id="plot" width="900" height="560"></canvas>
+        <div id="schar-slider" class="schar-slider hidden">
+          <label>Scharparameter <span class="mono">t = <span id="t-val">1</span></span></label>
+          <input id="t-range" type="range" min="-3" max="3" step="0.1" value="1" />
+        </div>
+      </div>
+
+      <div class="solution-bar hidden" id="solution-bar">
+        <button id="toggle-solution" class="btn solution">Lösungen anzeigen</button>
+        <span class="hint">Es werden nur die Ergebnisse angegeben – kein Lösungsweg.</span>
+      </div>
+
+      <article id="solution-card" class="solution-card hidden"></article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>Analysis-Trainer · für den Mathematik-LK · Ergebnisse werden numerisch/symbolisch berechnet.</span>
+  </footer>
+
+  <script src="js/math-utils.js" defer></script>
+  <script src="js/plot.js" defer></script>
+  <script src="js/generators.js" defer></script>
+  <script src="js/solver.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
