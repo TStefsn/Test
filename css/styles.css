@@ -212,3 +212,35 @@ body {
 
 .hidden { display: none !important; }
 .site-footer { text-align: center; color: var(--muted); font-size: 0.76rem; padding: 18px; border-top: 1px solid var(--line); margin-top: 10px; }
+
+/* ---------- Druck / PDF-Export ---------- */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff !important; color: #111 !important; }
+  .site-header { position: static; border: none; background: #fff; padding: 0 0 8px; }
+  .logo { background: #fff; border: 1px solid #bbb; color: #333; }
+  .site-header h1, .subtitle { color: #111 !important; }
+  /* Bedienelemente & Buttons im Druck ausblenden */
+  .controls, .header-actions, .control-actions, .plot-controls,
+  .solution-bar, #own-input, .schar-slider, .site-footer { display: none !important; }
+  .layout { display: block; padding: 0; max-width: none; }
+  /* Großer Container ohne Umbruchsperre/Rahmen (sonst bleibt Seite 1 leer) */
+  .panel { background: #fff !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+  .task-card, .plot-wrap, .solution-card {
+    background: #fff !important; border: 1px solid #ccc !important;
+    box-shadow: none !important; color: #111 !important; margin-bottom: 10px;
+  }
+  /* Aufgabe und Graph möglichst zusammenhalten; Lösungen dürfen umbrechen */
+  .task-card, .plot-wrap { break-inside: avoid; page-break-inside: avoid; }
+  .task-card *, .solution-card *, .formula, h1, h2, h3, h4 { color: #111 !important; }
+  .func-display { background: #f6f6f6 !important; border: 1px solid #ddd !important; }
+  .tag { background: #eee !important; color: #333 !important; border: 1px solid #bbb !important; }
+  .tag.alt, .tag.lvl { background: #eee !important; color: #333 !important; }
+  .sol-item { background: #fafafa !important; border: 1px solid #ddd !important; }
+  .sol-item .label { color: #555 !important; }
+  .none-note { color: #555 !important; }
+  .sol-section { break-inside: avoid; page-break-inside: avoid; }
+  #plot { width: 100%; border: 1px solid #ccc; }
+  /* ausgeblendete Lösungen bleiben ausgeblendet (Arbeitsblatt ohne Lösung) */
+  .solution-card.hidden { display: none !important; }
+}

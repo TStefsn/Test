@@ -68,7 +68,7 @@
 
   Plotter.prototype.clear = function () {
     const { ctx, canvas } = this;
-    ctx.fillStyle = '#0c1116';
+    ctx.fillStyle = this.printMode ? '#ffffff' : '#0c1116';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
@@ -78,8 +78,9 @@
     const sx = niceStep(xmax - xmin), sy = niceStep(ymax - ymin);
     ctx.lineWidth = 1;
     ctx.font = '11px Consolas, monospace';
+    const dark = !this.printMode;
     // Gitter
-    ctx.strokeStyle = 'rgba(120,140,160,0.12)';
+    ctx.strokeStyle = dark ? 'rgba(120,140,160,0.12)' : 'rgba(60,80,100,0.18)';
     for (let x = Math.ceil(xmin / sx) * sx; x <= xmax; x += sx) {
       ctx.beginPath(); ctx.moveTo(this.px(x), 0); ctx.lineTo(this.px(x), this.canvas.height); ctx.stroke();
     }
@@ -87,13 +88,13 @@
       ctx.beginPath(); ctx.moveTo(0, this.py(y)); ctx.lineTo(this.canvas.width, this.py(y)); ctx.stroke();
     }
     // Achsen
-    ctx.strokeStyle = 'rgba(200,215,230,0.55)';
+    ctx.strokeStyle = dark ? 'rgba(200,215,230,0.55)' : 'rgba(40,55,70,0.85)';
     ctx.lineWidth = 1.5;
     const y0 = this.py(0), x0 = this.px(0);
     ctx.beginPath(); ctx.moveTo(0, y0); ctx.lineTo(this.canvas.width, y0); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x0, 0); ctx.lineTo(x0, this.canvas.height); ctx.stroke();
     // Achsenbeschriftung
-    ctx.fillStyle = 'rgba(180,200,215,0.7)';
+    ctx.fillStyle = dark ? 'rgba(180,200,215,0.7)' : 'rgba(40,55,70,0.9)';
     for (let x = Math.ceil(xmin / sx) * sx; x <= xmax; x += sx) {
       if (Math.abs(x) < 1e-9) continue;
       ctx.fillText(round(x), this.px(x) + 2, y0 - 4);

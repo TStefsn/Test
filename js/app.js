@@ -41,7 +41,13 @@
     $('own-go').addEventListener('click', onOwnFunction);
     $('own-fx').addEventListener('keydown', (e) => { if (e.key === 'Enter') onOwnFunction(); });
     $('toggle-solution').addEventListener('click', toggleSolution);
+    $('pdf-btn').addEventListener('click', exportPdf);
     $('t-range').addEventListener('input', onScharChange);
+
+    // Beim Drucken Graph auf hellen Hintergrund umstellen (tintenschonend),
+    // danach wieder zurück.
+    window.addEventListener('beforeprint', () => { if (STATE.analysis) { STATE.plotter.printMode = true; redraw(); } });
+    window.addEventListener('afterprint', () => { if (STATE.analysis) { STATE.plotter.printMode = false; redraw(); } });
 
     // Aufgabentyp ändert verfügbare Fokus-Optionen
     document.querySelectorAll('input[name=task]').forEach(r =>
@@ -465,6 +471,17 @@
   }
 
   function typeset(_el) { /* kein externer Renderer nötig – Formeln sind bereits HTML */ }
+
+  // PDF-Export über die Druckfunktion des Browsers ("Als PDF speichern").
+  function exportPdf() {
+    if (!STATE.gen) { alert('Bitte zuerst eine Aufgabe erzeugen.'); return; }
+    // Graph für den Druck neu zeichnen (heller Hintergrund), dann drucken.
+    STATE.plotter.printMode = true; redraw();
+    setTimeout(() => {
+      window.print();
+      STATE.plotter.printMode = false; redraw();
+    }, 60);
+  }
 
   document.addEventListener('DOMContentLoaded', init);
 })();
