@@ -145,6 +145,23 @@
     $('solution-bar').classList.remove('hidden');
     $('solution-card').classList.add('hidden');
     $('toggle-solution').textContent = 'Lösungen anzeigen';
+
+    // Eigene-Funktion-Eingabe nach dem Erzeugen schließen und Tastatur ausblenden
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+
+    // Auf Handys/kleinen Bildschirmen automatisch zur neuen Aufgabe scrollen,
+    // damit sie nicht "im Hintergrund" unterhalb der Bedienelemente liegt.
+    scrollToTask();
+  }
+
+  function scrollToTask() {
+    // kurze Verzögerung, damit das Layout (Plot etc.) fertig ist
+    requestAnimationFrame(() => {
+      const card = $('task-card');
+      if (card && typeof card.scrollIntoView === 'function') {
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
   }
 
   /* ---------- Formeln als lesbares HTML rendern (ohne externe Bibliothek) ---------- */

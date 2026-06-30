@@ -77,7 +77,13 @@ body {
 }
 @media (max-width: 980px) {
   .layout { grid-template-columns: 1fr; }
+  /* Auf kleinen Bildschirmen Bedienfeld nicht fixieren, damit die erzeugte
+     Aufgabe darunter sichtbar wird und nicht "im Hintergrund" liegt. */
+  .controls { position: static; top: auto; }
 }
+
+/* Beim Hinscrollen nicht unter der fixierten Kopfzeile verschwinden. */
+#task-card { scroll-margin-top: 90px; }
 
 .panel {
   background: var(--panel);
