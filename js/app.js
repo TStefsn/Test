@@ -473,13 +473,19 @@
   function typeset(_el) { /* kein externer Renderer nötig – Formeln sind bereits HTML */ }
 
   // PDF-Export über die Druckfunktion des Browsers ("Als PDF speichern").
+  // Das PDF enthält immer Aufgabe UND Lösungen – die Lösungen werden für den
+  // Druck eingeblendet und danach der vorherige Zustand wiederhergestellt.
   function exportPdf() {
     if (!STATE.gen) { alert('Bitte zuerst eine Aufgabe erzeugen.'); return; }
+    const solCard = $('solution-card');
+    const wasHidden = solCard.classList.contains('hidden');
+    if (wasHidden) { renderSolution(); solCard.classList.remove('hidden'); }
     // Graph für den Druck neu zeichnen (heller Hintergrund), dann drucken.
     STATE.plotter.printMode = true; redraw();
     setTimeout(() => {
       window.print();
       STATE.plotter.printMode = false; redraw();
+      if (wasHidden) solCard.classList.add('hidden'); // Bildschirmzustand zurücksetzen
     }, 60);
   }
 
