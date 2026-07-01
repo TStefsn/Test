@@ -44,10 +44,18 @@
     $('pdf-btn').addEventListener('click', exportPdf);
     $('t-range').addEventListener('input', onScharChange);
 
-    // Beim Drucken Graph auf hellen Hintergrund umstellen (tintenschonend),
-    // danach wieder zurück.
+    // Beim Drucken Graph auf hellen Hintergrund umstellen (tintenschonend).
     window.addEventListener('beforeprint', () => { if (STATE.analysis) { STATE.plotter.printMode = true; redraw(); } });
-    window.addEventListener('afterprint', () => { if (STATE.analysis) { STATE.plotter.printMode = false; redraw(); } });
+    // Nach dem Druck alles zurücksetzen. WICHTIG: erst hier (nicht direkt nach
+    // window.print()), da window.print() auf Mobilgeräten sofort zurückkehrt.
+    // Mehrere Signale, da afterprint auf iOS Safari unzuverlässig ist:
+    window.addEventListener('afterprint', restorePrintState);
+    if (window.matchMedia) {
+      const mqPrint = window.matchMedia('print');
+      const mqHandler = (e) => { if (!e.matches) restorePrintState(); };
+      if (mqPrint.addEventListener) mqPrint.addEventListener('change', mqHandler);
+      else if (mqPrint.addListener) mqPrint.addListener(mqHandler);
+    }
 
     // Aufgabentyp ändert verfügbare Fokus-Optionen
     document.querySelectorAll('input[name=task]').forEach(r =>
@@ -473,20 +481,31 @@
   function typeset(_el) { /* kein externer Renderer nötig – Formeln sind bereits HTML */ }
 
   // PDF-Export über die Druckfunktion des Browsers ("Als PDF speichern").
-  // Das PDF enthält immer Aufgabe UND Lösungen – die Lösungen werden für den
-  // Druck eingeblendet und danach der vorherige Zustand wiederhergestellt.
+  // Das PDF enthält immer Aufgabe UND Lösungen. Die Lösungen werden für den
+  // Druck eingeblendet; das Zurücksetzen passiert erst im afterprint-Handler
+  // (restorePrintState), da window.print() auf Mobilgeräten sofort zurückkehrt
+  // und die Lösungen sonst vor der PDF-Erzeugung wieder verschwinden würden.
   function exportPdf() {
     if (!STATE.gen) { alert('Bitte zuerst eine Aufgabe erzeugen.'); return; }
     const solCard = $('solution-card');
-    const wasHidden = solCard.classList.contains('hidden');
-    if (wasHidden) { renderSolution(); solCard.classList.remove('hidden'); }
-    // Graph für den Druck neu zeichnen (heller Hintergrund), dann drucken.
+    STATE.pdfSolWasHidden = solCard.classList.contains('hidden');
+    if (STATE.pdfSolWasHidden) { renderSolution(); solCard.classList.remove('hidden'); }
     STATE.plotter.printMode = true; redraw();
-    setTimeout(() => {
-      window.print();
-      STATE.plotter.printMode = false; redraw();
-      if (wasHidden) solCard.classList.add('hidden'); // Bildschirmzustand zurücksetzen
-    }, 60);
+    // Fallback: Zustand zurücksetzen, sobald die Seite wieder Fokus bekommt
+    // (z. B. nachdem das iOS-Teilen-/Druckfenster geschlossen wurde).
+    const onFocus = () => { window.removeEventListener('focus', onFocus); setTimeout(restorePrintState, 250); };
+    window.addEventListener('focus', onFocus);
+    // kurze Verzögerung, damit Lösungen + heller Graph gerendert sind
+    setTimeout(() => window.print(), 150);
+  }
+
+  // Bildschirm nach dem Druck zurücksetzen (Graph-Thema + Lösungen).
+  function restorePrintState() {
+    if (STATE.analysis) { STATE.plotter.printMode = false; redraw(); }
+    if (STATE.pdfSolWasHidden) {
+      $('solution-card').classList.add('hidden');
+      STATE.pdfSolWasHidden = false;
+    }
   }
 
   document.addEventListener('DOMContentLoaded', init);
